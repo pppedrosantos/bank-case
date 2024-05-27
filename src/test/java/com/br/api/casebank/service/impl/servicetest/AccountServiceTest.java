@@ -1,15 +1,11 @@
-package com.br.api.casebank.service.impl.serviceTest;
+package com.br.api.casebank.service.impl.servicetest;
 
 import com.br.api.casebank.dto.AccountPostRequest;
 import com.br.api.casebank.dto.AccountUpdateRequest;
-import com.br.api.casebank.dto.PersonPostRequest;
-import com.br.api.casebank.exception.DateHandlerException;
 import com.br.api.casebank.mapper.AccountPostMapper;
-import com.br.api.casebank.mapper.AccountUpdateMapper;
-import com.br.api.casebank.mapper.PersonPostMapper;
 import com.br.api.casebank.model.Account;
 import com.br.api.casebank.repository.AccountRepository;
-import com.br.api.casebank.repository.PersonRespository;
+import com.br.api.casebank.repository.PersonRepository;
 import com.br.api.casebank.service.impl.AccountServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,8 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -30,14 +25,11 @@ class AccountServiceTest {
     @Mock
     private AccountRepository accountRepository;
 
-    @Mock
-    private AccountUpdateMapper accountUpdateMapper;
-
     @InjectMocks
     private AccountServiceImpl accountService;
 
     @Mock
-    private PersonRespository personRepository;
+    private PersonRepository personRepository;
 
     @Mock
     private AccountPostMapper accountMapper;
@@ -86,7 +78,9 @@ class AccountServiceTest {
         accountService.deleteAccount(id);
 
         // Assert
+        // Verificar se o método se o repository foi chamado.
         verify(accountRepository, times(1)).existsByAccountNumber(id);
+        // Verificar se o método se o repository foi chamado.
         verify(accountRepository, times(1)).deleteById(id);
     }
 
@@ -101,37 +95,56 @@ class AccountServiceTest {
         assertThrows(NoSuchElementException.class, () -> accountService.deleteAccount(id));
     }
 
-    @Test
-    void testUpdateBalanceAccount_Successfully() {
-        // Arrange
-        Long accountNumber = 123L;
-        AccountUpdateRequest accountUpdateRequest = new AccountUpdateRequest();
-        Account account = new Account();
-
-        when(accountRepository.findById(accountNumber)).thenReturn(Optional.of(account));
-        when(accountUpdateMapper.convertToAccount(accountUpdateRequest, account)).thenReturn(account);
-
-        // Act
-        String result = accountService.updateBalanceAccount(accountNumber, accountUpdateRequest);
-
-        // Assert
-        assertEquals("Update Successfully", result);
-        verify(accountRepository, times(1)).findById(accountNumber);
-        verify(accountUpdateMapper, times(1)).convertToAccount(accountUpdateRequest, account);
-        verify(accountRepository, times(1)).save(account);
-    }
 
     @Test
     void testUpdateBalanceAccount_IdNotFound() {
-        // Arrange
-        Long accountNumber = 123L;
-        AccountUpdateRequest accountUpdateRequest = new AccountUpdateRequest(/* provide necessary data */);
 
-        // Configurando o comportamento do mock para lançar NoSuchElementException
-        when(accountRepository.findById(accountNumber)).thenThrow(new NoSuchElementException("Id not found."));
+        // Dados de teste
+        Long accountNumber = 123456L;
+        AccountUpdateRequest newBalance = new AccountUpdateRequest(100.0); // Supondo que o saldo seja incrementado em 100
 
-        // Act & Assert
-        assertThrows(NoSuchElementException.class, () -> accountService.updateBalanceAccount(accountNumber, accountUpdateRequest));
+        // Mock do repositório que retorna Optional.empty() para simular o cenário de conta não encontrada
+        when(accountRepository.findById(accountNumber)).thenReturn(Optional.empty());
+
+        // Verificar se a exceção é lançada quando a conta não é encontrada
+        assertThrows(NoSuchElementException.class, () -> accountService.updateBalanceAccount(accountNumber, newBalance));
+
+        // Verificar se o método findById foi chamado com o número de conta correto
+        verify(accountRepository).findById(accountNumber);
+
+        // Verificar se o método save não foi chamado
+        verify(accountRepository, never()).save(any());
+
+    }
+
+    @Test
+    public void testUpdateBalanceAccount() {
+        // Dados de teste
+
+        Long accountNumber = 123456L;
+        AccountUpdateRequest newBalance = new AccountUpdateRequest(100.0);
+
+        // Mock do repositório
+        Account existingAccount = new Account();
+        existingAccount.setAccountNumber(accountNumber);
+        existingAccount.setBalance(500.0); // saldo inicial
+        when(accountRepository.findById(accountNumber)).thenReturn(Optional.of(existingAccount));
+        when(accountRepository.save(any(Account.class))).thenAnswer(invocation -> invocation.getArgument(0)); // Mock do método save para retornar o objeto salvo
+
+        // Chamar o método sob teste
+        Account updatedAccount = accountService.updateBalanceAccount(accountNumber, newBalance);
+
+        // Verificar se o saldo foi atualizado corretamente
+        assertEquals(600.0, updatedAccount.getBalance()); // saldo esperado após o incremento
+
+        assertNotEquals(601, updatedAccount.getBalance());
+
+        // Verificar se o método findById foi chamado com o número de conta correto
+        verify(accountRepository).findById(accountNumber);
+
+        // Verificar se o método save foi chamado
+        verify(accountRepository).save(existingAccount);
+
     }
 
 

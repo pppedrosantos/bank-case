@@ -10,5 +10,5 @@ public interface AccountService {
 
     Void deleteAccount(Long id);
 
-    String updateBalanceAccount(Long accountNumber, AccountUpdateRequest accountUpdateRequest);
+    Account updateBalanceAccount(Long accountNumber, AccountUpdateRequest balance);
 }

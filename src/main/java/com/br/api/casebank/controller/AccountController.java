@@ -22,18 +22,20 @@ public class AccountController {
     @Autowired
     private AccountService service;
 
+    //Cadastro de uma nova conta vinculado ao usuario
     @PostMapping(value = "/createAccount", produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<Account> createAccount(@RequestBody AccountPostRequest accountPostRequest) {
         return new ResponseEntity<>(service.createAccount(accountPostRequest), HttpStatus.CREATED);
     }
 
-    @PutMapping(value = "/updateBalanceAccount/{accountNumber}", produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> updateBalanceAccount(@PathVariable Long accountNumber,
-                                              @RequestBody AccountUpdateRequest accountRequest) {
-        String message = service.updateBalanceAccount(accountNumber, accountRequest);
-        return ResponseEntity.status(HttpStatus.OK).body(message);
+    //Depósito Bancario
+    @PatchMapping(value = "/updateBalanceAccount/{accountNumber}", produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<Account> updateBalanceAccount(@PathVariable Long accountNumber,
+                                                       @RequestBody AccountUpdateRequest balance) {
+        return new ResponseEntity<>(service.updateBalanceAccount(accountNumber, balance), HttpStatus.OK);
     }
 
+    //HARD DELETE da conta pelo numero da conta
     @DeleteMapping(value = "/deleteAccount/{accountNumber}", produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<Void> deleteAccount(@PathVariable Long accountNumber) {
         return new ResponseEntity<>(service.deleteAccount(accountNumber), HttpStatus.NO_CONTENT);

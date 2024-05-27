@@ -2,12 +2,11 @@ package com.br.api.casebank.service.impl;
 
 import com.br.api.casebank.dto.PersonPostRequest;
 import com.br.api.casebank.dto.PersonUpdateRequest;
-import com.br.api.casebank.exception.DateHandlerException;
+import com.br.api.casebank.exception.DataHandlerException;
 import com.br.api.casebank.mapper.PersonPostMapper;
 import com.br.api.casebank.mapper.PersonUpdateMapper;
 import com.br.api.casebank.model.Person;
-import com.br.api.casebank.repository.AccountRepository;
-import com.br.api.casebank.repository.PersonRespository;
+import com.br.api.casebank.repository.PersonRepository;
 import com.br.api.casebank.service.PersonService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +27,7 @@ public class PersonServiceImpl implements PersonService {
     PersonUpdateMapper personUpdateMapper;
 
     @Autowired
-    PersonRespository personRespository;
+    PersonRepository personRepository;
 
     @Transactional
     public Person createUser(PersonPostRequest personPostRequest) {
@@ -37,11 +36,11 @@ public class PersonServiceImpl implements PersonService {
         try {
             Person person = personPostMapper.convertTo(personPostRequest);
 
-            personRespository.save(person);
+            personRepository.save(person);
 
             return person;
         } catch (Exception e){
-            throw new DateHandlerException("Error when trying to save user.");
+            throw new DataHandlerException("Error when trying to save user.");
         }
 
 
@@ -51,7 +50,7 @@ public class PersonServiceImpl implements PersonService {
     public Person getUser(Long id) {
 
         log.info("User search by id: {}", id);
-        Optional<Person> person = personRespository.findById(id);
+        Optional<Person> person = personRepository.findById(id);
 
         if (!person.isPresent()) {
             throw new NoSuchElementException("Id not found.");
@@ -64,11 +63,11 @@ public class PersonServiceImpl implements PersonService {
     public Person updateUser(Long id, PersonUpdateRequest personRequest){
 
         log.info("Updating user status.");
-        Person person = personRespository.findById(id).orElseThrow(
+        Person person = personRepository.findById(id).orElseThrow(
                 () -> new NoSuchElementException("Id not found.")
         );
         person = personUpdateMapper.convertToPersonUpdate(personRequest, person);
-        personRespository.save(person);
+        personRepository.save(person);
         log.info("User updated.");
 
         return person;

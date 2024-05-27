@@ -1,7 +1,7 @@
 package com.br.api.casebank.config;
 
 import com.br.api.casebank.dto.ApiError;
-import com.br.api.casebank.exception.DateHandlerException;
+import com.br.api.casebank.exception.DataHandlerException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.core.Ordered;
@@ -46,7 +46,7 @@ public class RestExceptionHandler {
 		return buildResponseEntityApiError(apiError);
 	}
 
-	@ExceptionHandler(DateHandlerException.class)
+	@ExceptionHandler(DataHandlerException.class)
 	public ResponseEntity<ApiError> handleDataException(Exception ex) {
 		logger.catching(ex);
 		ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST);

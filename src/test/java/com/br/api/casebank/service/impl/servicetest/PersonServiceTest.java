@@ -1,12 +1,10 @@
-package com.br.api.casebank.service.impl.serviceTest;
+package com.br.api.casebank.service.impl.servicetest;
 
-import com.br.api.casebank.dto.PersonPostRequest;
 import com.br.api.casebank.dto.PersonUpdateRequest;
-import com.br.api.casebank.exception.DateHandlerException;
 import com.br.api.casebank.mapper.PersonPostMapper;
 import com.br.api.casebank.mapper.PersonUpdateMapper;
 import com.br.api.casebank.model.Person;
-import com.br.api.casebank.repository.PersonRespository;
+import com.br.api.casebank.repository.PersonRepository;
 import com.br.api.casebank.service.impl.PersonServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,7 +23,7 @@ import static org.mockito.Mockito.*;
 public class PersonServiceTest {
 
     @Mock
-    private PersonRespository personRepository;
+    private PersonRepository personRepository;
 
     @InjectMocks
     private PersonServiceImpl personService;

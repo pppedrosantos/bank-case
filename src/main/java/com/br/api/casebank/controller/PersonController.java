@@ -21,16 +21,18 @@ public class PersonController {
 	@Autowired
 	private PersonService service;
 
+	//Cadastro de novo usuario.
 	@PostMapping(value = "/createPerson", produces = {MediaType.APPLICATION_JSON_VALUE})
 	public ResponseEntity<Person> createUser(@Valid @RequestBody PersonPostRequest person){
 		return new  ResponseEntity<>(service.createUser(person), HttpStatus.CREATED);
 	}
-
+	//Buscar usuarios pelo ID
 	@GetMapping(value = "/getPerson/{id}", produces = {MediaType.APPLICATION_JSON_VALUE})
 	public ResponseEntity<Person> getPerson(@PathVariable Long id){
 		return new ResponseEntity<>(service.getUser(id), HttpStatus.OK);
 	}
 
+	//SOFT DELETE
 	@PutMapping(value = "/updatePerson/{id}", produces = {MediaType.APPLICATION_JSON_VALUE})
 	public ResponseEntity<Person> updateStatus(@PathVariable Long id,
 											   @RequestBody PersonUpdateRequest personRequest){

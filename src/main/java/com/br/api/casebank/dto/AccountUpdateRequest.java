@@ -7,9 +7,13 @@ import lombok.NoArgsConstructor;
 
 @Builder
 @NoArgsConstructor
-@AllArgsConstructor
+//@AllArgsConstructor
 @Data
 public class AccountUpdateRequest {
 
     private Double balance;
+
+    public AccountUpdateRequest(Double balance) {
+        this.balance = balance;
+    }
 }

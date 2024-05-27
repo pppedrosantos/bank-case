@@ -4,9 +4,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.BAD_REQUEST)
-public class DateHandlerException extends RuntimeException{
+public class DataHandlerException extends RuntimeException{
 
-    public DateHandlerException(String message){
+    public DataHandlerException(String message){
         super(message);
     }
 

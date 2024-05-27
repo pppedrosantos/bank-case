@@ -2,16 +2,16 @@ package com.br.api.casebank.service.impl;
 
 import com.br.api.casebank.dto.AccountPostRequest;
 import com.br.api.casebank.dto.AccountUpdateRequest;
-import com.br.api.casebank.exception.DateHandlerException;
+import com.br.api.casebank.exception.DataHandlerException;
 import com.br.api.casebank.mapper.AccountPostMapper;
-import com.br.api.casebank.mapper.AccountUpdateMapper;
 import com.br.api.casebank.model.Account;
 import com.br.api.casebank.repository.AccountRepository;
-import com.br.api.casebank.repository.PersonRespository;
+import com.br.api.casebank.repository.PersonRepository;
 import com.br.api.casebank.service.AccountService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.NoSuchElementException;
 
@@ -20,7 +20,7 @@ import java.util.NoSuchElementException;
 public class AccountServiceImpl implements AccountService {
 
     @Autowired
-    PersonRespository personRespository;
+    PersonRepository personRepository;
 
     @Autowired
     AccountRepository accountRepository;
@@ -28,15 +28,13 @@ public class AccountServiceImpl implements AccountService {
     @Autowired
     AccountPostMapper accountMapper;
 
-    @Autowired
-    AccountUpdateMapper accountUpdateMapper;
-
+    @Transactional
     public Account createAccount(AccountPostRequest accountRequest){
 
         Account account;
 
         log.info("Creating account.");
-        if (personRespository.existsById(accountRequest.getIdPerson())){
+        if (personRepository.existsById(accountRequest.getIdPerson())){
             account = accountMapper.convertToPerson(accountRequest);
             accountRepository.save(account);
             log.info("Account created.");
@@ -63,22 +61,18 @@ public class AccountServiceImpl implements AccountService {
             accountRepository.deleteById(id);
             log.info("Deleting account with id: {}", id);
         } else {
-            throw new DateHandlerException("Balance must be zero for deletion.");
+            throw new DataHandlerException("Balance must be zero for deletion.");
         }
         return null;
     }
 
-    public String updateBalanceAccount(Long accountNumber, AccountUpdateRequest accountUpdateRequest){
-        log.info("Updating account balance.");
-        Account account = accountRepository.findById(accountNumber).orElseThrow(
-                () -> new NoSuchElementException("Id not found.")
-        );
-        account = accountUpdateMapper.convertToAccount(accountUpdateRequest, account);
-        accountRepository.save(account);
-        log.info("Updated balance.");
+    @Transactional
+    public Account updateBalanceAccount(Long accountNumber, AccountUpdateRequest newBalance){
 
-        return "Update Successfully";
-
+        return accountRepository.findById(accountNumber).map(account -> {
+            account.setBalance(account.getBalance() + newBalance.getBalance());
+            return accountRepository.save(account);
+        }).orElseThrow(() -> new NoSuchElementException("Account with id " + accountNumber + " not found"));
 
     }
 

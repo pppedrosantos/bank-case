@@ -8,7 +8,7 @@ public class Utils {
         Random random = new Random();
         StringBuilder randomNumber = new StringBuilder();
 
-        for (int i = 0; i < 12; i++) {
+        for (int i = 0; i < 16; i++) {
             randomNumber.append(random.nextInt(10));
         }
 
